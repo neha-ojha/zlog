@@ -135,3 +135,7 @@ target_link_libraries(zstate-test
     zlog_seqr
     ${Boost_SYSTEM_LIBRARY}
 )
+
+####
+
+add_subdirectory(java)

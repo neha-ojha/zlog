@@ -14,8 +14,10 @@ else()
 endif()
 
 find_package(Boost COMPONENTS system program_options REQUIRED)
-
 find_package(Protobuf REQUIRED)
+
+find_package(Java)
+find_package(JNI)
 
 find_package(librados REQUIRED)
 find_package(libcls_zlog_client REQUIRED)

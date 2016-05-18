@@ -152,3 +152,50 @@ jlong Java_com_cruzdb_Log_tail(JNIEnv *env, jobject jlog,
   ZlogExceptionJni::ThrowNew(env, ret);
   return position;
 }
+
+
+jlong Java_com_cruzdb_Log_kv_insert(JNIEnv *env, jobject jlog,
+     jlong jlog_handle, jstring jkey, jbyteArray jdata, jint jdata_len)
+{
+  auto log = reinterpret_cast<LogWrapper*>(jlog_handle);
+  
+  const char *key;
+  key = env->GetStringUTFChars(jkey, 0);
+  jbyte *data = env->GetByteArrayElements(jdata, 0);
+ 
+  ceph::bufferlist zlog_data;
+  zlog_data.append((char*)data, jdata_len);
+  env->ReleaseByteArrayElements(jdata, data, JNI_ABORT);
+
+  uint64_t pos;
+  int ret = log->log->kv_insert(key, zlog_data);
+  ZlogExceptionJni::ThrowNew(env, ret);
+
+}
+
+jbyteArray Java_com_cruzdb_Log_kv_read(JNIEnv *env, jobject jlog,
+     jlong jlog_handle, jstring jkey)
+{
+  auto log = reinterpret_cast<LogWrapper*>(jlog_handle);
+  
+  const char *key;
+  key = env->GetStringUTFChars(jkey, 0);
+  ceph::bufferlist bl;
+  
+  int ret = log->log->kv_read(key, bl);
+
+  if (ret) {
+    if (ret == -ENODEV)
+      NotWrittenExceptionJni::ThrowNew(env, ret);
+    else if (ret == -EFAULT)
+      FilledExceptionJni::ThrowNew(env, ret);
+    else
+      ZlogExceptionJni::ThrowNew(env, ret);
+    return nullptr;
+  }
+
+  jbyteArray result = env->NewByteArray(static_cast<jsize>(bl.length()));
+  env->SetByteArrayRegion(result, 0, static_cast<jsize>(bl.length()),
+      reinterpret_cast<const jbyte*>(bl.c_str()));
+  return result;
+}  

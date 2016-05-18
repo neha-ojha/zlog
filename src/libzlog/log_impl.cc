@@ -71,7 +71,7 @@ int Log::Create(librados::IoCtx& ioctx, const std::string& name,
   std::string metalog_oid = LogImpl::metalog_oid_from_name(name);
   int ret = ioctx.operate(metalog_oid, &op);
   if (ret) {
-    std::cerr << "Failed to create log " << name << " ret "
+    std::cerr << "Failed to create log" << name << " ret "
       << ret << " (" << strerror(-ret) << ")" << std::endl;
     return ret;
   }
@@ -622,6 +622,36 @@ int LogImpl::Read(uint64_t position, ceph::bufferlist& bl)
     }
   }
   assert(0);
+}
+
+int LogImpl::kv_insert(std::string key, ceph::bufferlist& data)
+{
+  // concat key and data before appending in the log
+  ceph::bufferlist zlog_data;
+  zlog_data.append(key);
+  zlog_data.append(data);
+
+  uint64_t pos;
+  // append zlog_data to the log
+  int ret = Append(zlog_data, &pos);
+  // add key, pos to the kv map
+  key_to_position_.insert(std::pair<std::string&, uint64_t>(key, pos));
+  //std::cout << "Append at position: " << pos << std::endl;
+  return ret;
+}
+
+int LogImpl::kv_read(std::string key, ceph::bufferlist& bl)
+{
+  //lookup the map to find the log position
+  std::map<std::string, uint64_t>::const_iterator it =
+                                         key_to_position_.find(key);
+  uint64_t pos;
+  pos = it->second;
+
+  // read the data from the log position
+  int ret = Read(pos, bl);
+  //std::cout<<"Read: "<< bl.c_str() << " at position " <<pos << std::endl;
+  return ret;
 }
 
 extern "C" int zlog_destroy(zlog_log_t log)

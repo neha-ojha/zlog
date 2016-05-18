@@ -109,6 +109,9 @@ class LogImpl : public Log {
       std::map<uint64_t, std::vector<uint64_t>>& stream_backpointers,
       uint64_t *position, bool next);
 
+  int kv_insert(std::string key, ceph::bufferlist& data);
+
+  int kv_read(std::string key, ceph::bufferlist& bl);
 
   librados::IoCtx *ioctx_;
   std::string pool_;
@@ -122,6 +125,7 @@ class LogImpl : public Log {
   std::mutex lock_;
   LogMapper mapper_;
   uint64_t epoch_;
+  std::map<std::string, uint64_t> key_to_position_;
 };
 
 struct zlog_log_ctx {

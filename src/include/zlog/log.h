@@ -68,6 +68,19 @@ class Log {
   void operator=(const Log&);
 };
 
+class ZlogKV {
+ public:
+  Log *log_;
+  ZlogKV(Log *log): log_(log) {};
+  ~ZlogKV();
+  void kv_insert(std::string& key, ceph::bufferlist& data);
+  void kv_read(std::string key);
+
+  private:
+    std::map<std::string, uint64_t> key_to_position_;
+
+};
 }
+
 
 #endif

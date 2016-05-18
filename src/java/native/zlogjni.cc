@@ -152,3 +152,64 @@ jlong Java_com_cruzdb_Log_tail(JNIEnv *env, jobject jlog,
   ZlogExceptionJni::ThrowNew(env, ret);
   return position;
 }
+
+/*
+void Java_com_cruzdb_Log_kv_insert(JNIEnv *env, jobject jlog,
+     jlong jlog_handle, jbyteArray jdata, jstring jkey)
+{
+  auto log = reinterpret_cast<LogWrapper*>(jlog_handle);
+  
+  const char *key;
+  key = env->GetStringUTFChars(jkey, 0);
+  jbyte *data = env->GetByteArrayElements(jdata, 0);
+  
+  ceph::bufferlist zlog_data;
+  zlog_data.append((char*)key);
+  zlog_data.append((char*)data);
+  
+  // not sure
+  env->ReleaseByteArrayElements(jdata, data, JNI_ABORT);
+
+  uint64_t pos;
+  int ret = log->log->Append(zlog_data, &pos);
+  ZlogExceptionJni::ThrowNew(env, ret);
+
+  // add to map
+  // key_to_position_.insert(std::pair<std::string&, uint64_t>((char*)key,
+                             (char*) pos));
+  // std::cout << "Append at position: " << pos << std::endl;
+}
+
+void Java_com_cruzdb_Log_kv_read(JNIEnv *env, jobject jlog,
+     jlong jlog_handle, jstring jkey)
+{
+  auto log = reinterpret_cast<LogWrapper*>(jlog_handle);
+  
+  const char *key;
+  key = env->GetStringUTFChars(jkey, 0);
+  
+  // std::map<std::string, uint64_t>::const_iterator it =
+                                         key_to_position_.find(key);
+  uint64_t pos;
+  pos = it->second;
+
+  ceph::bufferlist zlog_data;
+  
+  int ret = log->log->Read(pos, zlog_data);
+
+  if (ret) {
+    if (ret == -ENODEV)
+      NotWrittenExceptionJni::ThrowNew(env, ret);
+    else if (ret == -EFAULT)
+      FilledExceptionJni::ThrowNew(env, ret);
+    else
+      ZlogExceptionJni::ThrowNew(env, ret);
+    return nullptr;
+  }
+
+  jbyteArray result = env->NewByteArray(static_cast<jsize>(zlog_data.length()));
+  env->SetByteArrayRegion(result, 0, static_cast<jsize>(zlog_data.length()),
+      reinterpret_cast<const jbyte*>(zlog_data.c_str()));
+  //std::cout<<"Read: "<< zlog_data.c_str() << " at position " <<pos << std::endl;
+}  
+*/

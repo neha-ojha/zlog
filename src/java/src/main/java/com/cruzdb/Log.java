@@ -114,6 +114,25 @@ public class Log extends ZObject {
   public long tail() throws LogException {
     return tail(nativeHandle_);
   }
+  /**
+   * Insert key value pair in map
+   */
+ 
+/* 
+  public void kv_insert(final String key, final byte[] data) throws LogException {     insert(nativeHandle_);
+  
+ }
+  */
+
+  /**
+   * Read key value pair from map
+   */
+  /*
+  public void kv_read(final String key) throws LogException {
+    read(nativeHandle_);
+  }
+  */
+
 
   private native void disposeInternal(long handle);
   private native void openNative(String pool, String seqr_server,
@@ -123,4 +142,6 @@ public class Log extends ZObject {
   private native void fill(long handle, long position) throws LogException;
   private native void trim(long handle, long position) throws LogException;
   private native long tail(long handle) throws LogException;
+  //private native void kv_insert(long handle, String key, byte[] data) throws LogException;
+  //private native void kv_read(long handle, String key) throws LogException;
 }

@@ -154,7 +154,7 @@ jlong Java_com_cruzdb_Log_tail(JNIEnv *env, jobject jlog,
 }
 
 
-jlong Java_com_cruzdb_Log_kv_insert(JNIEnv *env, jobject jlog,
+jlong Java_com_cruzdb_Log_kvinsert(JNIEnv *env, jobject jlog,
      jlong jlog_handle, jstring jkey, jbyteArray jdata, jint jdata_len)
 {
   auto log = reinterpret_cast<LogWrapper*>(jlog_handle);
@@ -168,12 +168,12 @@ jlong Java_com_cruzdb_Log_kv_insert(JNIEnv *env, jobject jlog,
   env->ReleaseByteArrayElements(jdata, data, JNI_ABORT);
 
   uint64_t pos;
-  int ret = log->log->kv_insert(key, zlog_data);
+  int ret = log->log->kvinsert(key, zlog_data);
   ZlogExceptionJni::ThrowNew(env, ret);
 
 }
 
-jbyteArray Java_com_cruzdb_Log_kv_read(JNIEnv *env, jobject jlog,
+jbyteArray Java_com_cruzdb_Log_kvread(JNIEnv *env, jobject jlog,
      jlong jlog_handle, jstring jkey)
 {
   auto log = reinterpret_cast<LogWrapper*>(jlog_handle);
@@ -182,7 +182,7 @@ jbyteArray Java_com_cruzdb_Log_kv_read(JNIEnv *env, jobject jlog,
   key = env->GetStringUTFChars(jkey, 0);
   ceph::bufferlist bl;
   
-  int ret = log->log->kv_read(key, bl);
+  int ret = log->log->kvread(key, bl);
 
   if (ret) {
     if (ret == -ENODEV)

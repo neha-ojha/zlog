@@ -56,10 +56,11 @@ int main(int argc, char **argv)
   
   // constructor call
   ceph::bufferlist read_bl; 
-  log->kv_insert(key, bl);
-  log->kv_read(key, read_bl);
+  log->kvinsert(key, bl);
+  log->kvread(key, read_bl);
   std::cout<<"Read: "<< read_bl.c_str() << std::endl;
-  
+ 
+  delete log; 
   
   ioctx.close();
   cluster.shutdown();

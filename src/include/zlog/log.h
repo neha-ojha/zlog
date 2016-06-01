@@ -17,7 +17,7 @@ class AioCompletion {
 class Log {
  public:
   Log() {}
-
+  //virtual ~Log() {}
   /*
    * Synchronous API
    */
@@ -45,8 +45,8 @@ class Log {
       const std::set<uint64_t>& stream_ids, uint64_t *pposition = NULL) = 0;
   virtual int StreamMembership(std::set<uint64_t>& stream_ids, uint64_t position) = 0;
 
-  virtual int kv_insert(std::string key, ceph::bufferlist& data) = 0;
-  virtual int kv_read(std::string key, ceph::bufferlist& bl) = 0;
+  virtual int kvinsert(std::string key, ceph::bufferlist& data) = 0;
+  virtual int kvread(std::string key, ceph::bufferlist& bl) = 0;
   /*
    * Log Management
    */

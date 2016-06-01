@@ -119,8 +119,8 @@ public class Log extends ZObject {
    */
  
 
-  public long kv_insert(final String key, final byte[] data) throws LogException {     
-   return kv_insert(nativeHandle_, key, data, data.length);
+  public long kvinsert(final String key, final byte[] data) throws LogException {     
+   return kvinsert(nativeHandle_, key, data, data.length);
   
  }
  
@@ -129,8 +129,8 @@ public class Log extends ZObject {
    * Read key value pair from map
    */
   
-  public byte[] kv_read(final String key) throws LogException {
-    return kv_read(nativeHandle_, key);
+  public byte[] kvread(final String key) throws LogException {
+    return kvread(nativeHandle_, key);
   }
   
 
@@ -143,6 +143,6 @@ public class Log extends ZObject {
   private native void fill(long handle, long position) throws LogException;
   private native void trim(long handle, long position) throws LogException;
   private native long tail(long handle) throws LogException;
-  private native long kv_insert(long handle, String key, byte[] data, int dataLen) throws LogException;
-  private native byte[] kv_read(long handle, String key) throws LogException;
+  private native long kvinsert(long handle, String key, byte[] data, int dataLen) throws LogException;
+  private native byte[] kvread(long handle, String key) throws LogException;
 }

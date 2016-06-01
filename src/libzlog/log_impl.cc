@@ -91,6 +91,7 @@ int Log::Create(librados::IoCtx& ioctx, const std::string& name,
     return ret;
   }
 
+  impl->ofs_.open("/home/neha/" + impl->name_ + ".map");
   *logptr = impl;
 
   return 0;
@@ -124,6 +125,34 @@ int Log::Open(librados::IoCtx& ioctx, const std::string& name,
   impl->metalog_oid_ = metalog_oid;
   impl->seqr = seqr;
   impl->mapper_.SetName(name);
+
+   
+  std::ifstream ifs("/home/neha/" + impl->name_ + ".map");
+  if (ifs.is_open())
+  {
+    std::string line;
+    std::string key("");
+    uint64_t position = -1; 
+    while ( getline (ifs,line) )
+    {
+      if (key.empty())
+      {
+        key = line;
+        continue;
+      }
+      if (position == -1)
+      {
+        position = std::stoull(line);
+        impl->key_to_position_[key] = position;
+        key.assign("");
+        position = -1;
+      }
+    }
+    ifs.close();
+  }
+  
+  impl->ofs_.open("/home/neha/" + impl->name_ + ".map",
+                  std::ofstream::out | std::ofstream::app);
 
   ret = impl->RefreshProjection();
   if (ret) {
@@ -624,23 +653,26 @@ int LogImpl::Read(uint64_t position, ceph::bufferlist& bl)
   assert(0);
 }
 
-int LogImpl::kv_insert(std::string key, ceph::bufferlist& data)
+int LogImpl::kvinsert(std::string key, ceph::bufferlist& data)
 {
   // concat key and data before appending in the log
-  ceph::bufferlist zlog_data;
-  zlog_data.append(key);
-  zlog_data.append(data);
+  //ceph::bufferlist zlog_data;
+//  zlog_data.append(key);
+  //zlog_data.append(data);
 
   uint64_t pos;
   // append zlog_data to the log
-  int ret = Append(zlog_data, &pos);
+  int ret = Append(data, &pos);
+  ofs_ << key << std::endl;
+  ofs_ << pos << std::endl;
+  ofs_.flush();
   // add key, pos to the kv map
   key_to_position_.insert(std::pair<std::string&, uint64_t>(key, pos));
   //std::cout << "Append at position: " << pos << std::endl;
   return ret;
 }
 
-int LogImpl::kv_read(std::string key, ceph::bufferlist& bl)
+int LogImpl::kvread(std::string key, ceph::bufferlist& bl)
 {
   //lookup the map to find the log position
   std::map<std::string, uint64_t>::const_iterator it =
